@@ -1,0 +1,9 @@
+# Pycharm metadata
+.idea/
+
+# Python cache
+*.pyc
+
+# Python environment
+env/
+
