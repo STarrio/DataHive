@@ -1,0 +1,25 @@
+{% extends 'DataHiveApp/base.html' %}
+
+{% block content %}
+
+	<h1>Configurations</h1>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3> Update cron </h3>
+        </div>
+        <div class="panel-body">
+
+            <h4>Execute every:</h4>
+            <form class="col-md-10 col-md-offset-2"action="{{config_url}}" method="post">
+                <div class="form-group">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        {{ form }}
+                        <input type="submit" value="Set Cron" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
