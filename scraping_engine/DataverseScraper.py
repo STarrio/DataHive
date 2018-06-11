@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup
 import urllib.request
 import re
-import importlib
+import datetime
 
-utils = importlib.import_module('utils', package="./")
+#import utils
 
 
 class DataverseScraper:
@@ -15,6 +15,7 @@ class DataverseScraper:
         self.base_url = "https://dataverse.harvard.edu"
         self.list_url = "/dataverse/harvard?q=&fq0=metadataSource%3A%22Harvard+Dataverse%22&types=datasets&sort=dateSort&order=asc&page={0}"
         self.file_download_url = "https://dataverse.harvard.edu/api/access/datafiles/{0}"
+        self.repo_name = "DATAVERSE"
 
     def get_data(self, page):
         print(self.base_url + self.list_url.format(page))
@@ -38,14 +39,13 @@ class DataverseScraper:
         # - Authors
         # - Description
         # - Keywords
-        # - Number of files
-        # - Url download files
+
         # - Files (for each file):
         #      - Name
         #      - Id
 
         entries = []
-
+        files = []
         for page in pages:
             l = self.get_data(page)
             for l_ds in l:
@@ -55,34 +55,46 @@ class DataverseScraper:
                 metadata = detail.find('div', attrs={"id": re.compile("metadataMapTab")}).find(class_="metadata-panel-body")
 
                 # Dataset metadata
-                entry['url'] = path
-                entry['pub_date'] = metadata.find(
-                    attrs={"for": "metadata_publicationDate"}).find_next_sibling().text.strip()
+                entry['url'] = self.base_url + path
+
+                pub_date_data = metadata.find_all(
+                    attrs={"for": "metadata_publicationDate"})[1].find_next_sibling().text.strip()
+                pub_date = datetime.datetime.strptime(pub_date_data, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+                entry['publication_date'] = pub_date
+
                 entry['title'] = metadata.find(attrs={"for": "metadata_title"}).find_next_sibling().text.strip()
-                entry['authors'] = utils.str_split_strip('\n', metadata.find(attrs={"for": "metadata_author"}).find_next_sibling().text)
+                entry['authors'] = str_split_strip('\n', metadata.find(attrs={"for": "metadata_author"}).find_next_sibling().text)
                 entry['description'] = metadata.find(attrs={"for": "metadata_dsDescription"}).find_next_sibling().text.strip()
+
                 keywords = metadata.find(attrs={"for": "metadata_keyword"})
-                entry['keywords'] = utils.str_split_strip(',|\n', keywords.find_next_sibling().text) if keywords else None
+                entry['keywords'] = str_split_strip(',|\n', keywords.find_next_sibling().text) if keywords else None
 
                 # Files
-                files = detail.find('div', attrs={"id": re.compile("dataFilesTab")}).find_all('a', href=re.compile('fileId=(\d+)&'))
+                files_data = detail.find('div', attrs={"id": re.compile("dataFilesTab")}).find_all('a', href=re.compile('fileId=(\d+)&'))
 
                 ids_file = []
-                entry['files'] = {}
-                for file in files:
+                dataset_files = []
+                for file in files_data:
                     file_id = re.search('fileId=(\d+)&', file.get('href')).group(1)
                     ids_file.append(file_id)
                     file_name = file.text
-                    entry['files'][file_id] = file_name
+                    dataset_files.append({'id_in_source': file_id, 'name': file_name})
 
-                entry['files_num'] = len(ids_file)
-                entry['files_download_url'] = self.file_download_url.format(",".join(map(str, ids_file)))
+                #entry['files_download_url'] = self.file_download_url.format(",".join(map(str, ids_file)))
+                entry['source'] = self.repo_name
+
                 entries.append(entry)
+                files.append(dataset_files)
 
-        return entries
+        return entries, files
+
+
+def str_split_strip(delimiter, string):
+    return list(map(str.strip, re.split(delimiter, string.strip())))
 
 
 if __name__ == "__main__":
     sc = DataverseScraper()
-    s = sc.scrape_data(range(1, 2))
-    print(s)
+    datasets, files = sc.scrape_data(range(1, 2))
+    print(datasets)
+    pass
