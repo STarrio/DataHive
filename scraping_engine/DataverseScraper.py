@@ -15,7 +15,7 @@ class DataverseScraper:
         self.base_url = "https://dataverse.harvard.edu"
         self.list_url = "/dataverse/harvard?q=&fq0=metadataSource%3A%22Harvard+Dataverse%22&types=datasets&sort=dateSort&order=asc&page={0}"
         self.file_download_url = "https://dataverse.harvard.edu/api/access/datafiles/{0}"
-        self.repo_name = "DATAVERSE"
+        self.repo = 1  # DATAVERSE
 
     def get_data(self, page):
         print(self.base_url + self.list_url.format(page))
@@ -39,7 +39,7 @@ class DataverseScraper:
         # - Authors
         # - Description
         # - Keywords
-
+        # - Source repo id (self.repo)
         # - Files (for each file):
         #      - Name
         #      - Id
@@ -81,7 +81,7 @@ class DataverseScraper:
                     dataset_files.append({'id_in_source': file_id, 'name': file_name})
 
                 #entry['files_download_url'] = self.file_download_url.format(",".join(map(str, ids_file)))
-                entry['source'] = self.repo_name
+                entry['source_id'] = self.repo
 
                 entries.append(entry)
                 files.append(dataset_files)

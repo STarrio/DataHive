@@ -11,7 +11,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "DataHive.settings")
 django.setup()
 
 from django.db import transaction
-from DataHiveApp.models import DataSet, File
+from DataHiveApp.models import DataSet, File, RepoMetadata
 import DataverseScraper
 
 
@@ -33,14 +33,24 @@ def load_files(files, created_datasets):
                   for f in dataset_files]
     File.objects.bulk_create(bulk_files)
 
+
 @transaction.atomic
-def load_data(datasets, files):
+def load_data(repo_name, num_pages):
+    """ Execute scraping, insert datasets/files into db and update repository metadata """
+    repo = RepoMetadata.objects.get(name=repo_name)
+    page_range = range(repo.last_fetch_page + 1, repo.last_fetch_page + 1 + num_pages)
+
+    datasets, files = DataverseScraper.DataverseScraper().scrape_data(page_range)
     created_datasets = load_datasets(datasets)
     load_files(files, created_datasets)
-    return created_datasets[0]
+
+    last_created_dataset = created_datasets[-1]
+    repo.last_fetch_page = repo.last_fetch_page + 1 + num_pages
+    repo.last_fetch_dataset = last_created_dataset
+    repo.save()
 
 
 if __name__ == '__main__':
-    datasets, files = DataverseScraper.DataverseScraper().scrape_data(range(1, 2))
-    load_data(datasets, files)
+    load_data('DATAVERSE', 1)
+
 
