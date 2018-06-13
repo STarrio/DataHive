@@ -2,7 +2,9 @@ from bs4 import BeautifulSoup
 import urllib.request
 
 class UCIScraper:
+
     # Class for the UCI Machine Learning Repository scraper
+
     def __init__(self):
         self.base_url = "http://archive.ics.uci.edu/ml/"
         self.table_url = "datasets/?format=&task=&att=&area=&numAtt=&numIns=&type=&sort=nameUp&view=table"
@@ -39,17 +41,25 @@ class UCIScraper:
             entry = {}
             ds_soup = l_ds[2*i]
             path = ds_soup.a['href']
+            name = ds_soup.contents[1].table.tr.contents[1].p.string
+
+            # Ignore troublesome dataset with unscrapeable description
+            if(name=="UJI Pen Characters (Version 2)"):
+                continue
+
             entry["url"] = self.base_url + path
-            entry["name"] = ds_soup.contents[1].table.tr.contents[1].p.string
+            entry["name"] = name
             entry["no_instances"] = ds_soup.contents[11].p.string.replace('\xa0','') if len(ds_soup.contents)>11 else ""
             entry["no_attr"] = ds_soup.contents[13].p.string.replace('\xa0','') if len(ds_soup.contents)>13 else ""
 
+            #print(entry["name"])
+
             # scraping over url with get_ds(url)
             detail = self.get_ds(path)
-            download_url = detail.table.span.find_next_siblings()[1].contents[2]['href'][2:]
+            download_url = detail.table.span.find_next_siblings()[1].contents[2]['href'][3:]
             abstract = detail.p.find_next_sibling().contents[1][2:]
             area = detail.table.find_next_sibling().find_all("tr")[0].find_all("td")[-1].p.string
-            info = "".join([s for s in detail.find_all("p",class_="small-heading")[1].find_next_sibling().contents if len(s)>6])
+            info = "".join([s if type(s)==str else s.string for s in detail.find_all("p",class_="small-heading")[1].find_next_sibling().contents if len(s)>6])
 
             entry["files_download_url"] = self.base_url + download_url
             entry["abstract"] = abstract
