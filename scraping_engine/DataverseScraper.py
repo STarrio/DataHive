@@ -3,7 +3,7 @@ import urllib.request
 import re
 import datetime
 
-#import utils
+from utils import str_split_strip, ex
 
 
 class DataverseScraper:
@@ -42,7 +42,9 @@ class DataverseScraper:
         # - Source repo id (self.repo)
         # - Files (for each file):
         #      - Name
-        #      - Id
+        #      - Id at repo
+        #      - Size
+        #      - Type
 
         entries = []
         files = []
@@ -62,25 +64,30 @@ class DataverseScraper:
                 pub_date = datetime.datetime.strptime(pub_date_data, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
                 entry['publication_date'] = pub_date
 
-                entry['title'] = metadata.find(attrs={"for": "metadata_title"}).find_next_sibling().text.strip()
-                entry['authors'] = str_split_strip('\n', metadata.find(attrs={"for": "metadata_author"}).find_next_sibling().text)
-                entry['description'] = metadata.find(attrs={"for": "metadata_dsDescription"}).find_next_sibling().text.strip()
+                entry['title'] = ex(lambda: metadata.find(attrs={"for": "metadata_title"}).find_next_sibling().text.strip())
+                entry['authors'] = ex(lambda: str_split_strip('\n', metadata.find(attrs={"for": "metadata_author"}).find_next_sibling().text))
+                entry['description'] = ex(lambda: metadata.find(attrs={"for": "metadata_dsDescription"}).find_next_sibling().text.strip())
 
                 keywords = metadata.find(attrs={"for": "metadata_keyword"})
                 entry['keywords'] = str_split_strip(',|\n', keywords.find_next_sibling().text) if keywords else None
 
                 # Files
-                files_data = detail.find('div', attrs={"id": re.compile("dataFilesTab")}).find_all('a', href=re.compile('fileId=(\d+)&'))
+                files_data = detail.find('div', attrs={"id": re.compile("dataFilesTab")}).find_all('td', class_='col-file-metadata')
 
                 ids_file = []
                 dataset_files = []
                 for file in files_data:
-                    file_id = re.search('fileId=(\d+)&', file.get('href')).group(1)
-                    ids_file.append(file_id)
-                    file_name = file.text
-                    dataset_files.append({'id_in_source': file_id, 'name': file_name})
+                    a_file = file.find('a')
 
-                #entry['files_download_url'] = self.file_download_url.format(",".join(map(str, ids_file)))
+                    file_id = re.search('fileId=(\d+)&', a_file.get('href')).group(1)
+                    file_name = a_file.text
+                    file_size = file.find('span', attrs={"id": re.compile("fileSize")}).text.strip('-| ')
+                    file_type = file.find('span', attrs={"id": re.compile("fileTypeOutputRegular|fileTypeOutputTabular")}).text
+
+                    dataset_files.append({'id_in_source': file_id, 'name': file_name,
+                                          'size': file_size, 'file_type': file_type})
+                    ids_file.append(file_id)
+
                 entry['source_id'] = self.repo
 
                 entries.append(entry)
@@ -89,12 +96,8 @@ class DataverseScraper:
         return entries, files
 
 
-def str_split_strip(delimiter, string):
-    return list(map(str.strip, re.split(delimiter, string.strip())))
-
-
 if __name__ == "__main__":
     sc = DataverseScraper()
-    datasets, files = sc.scrape_data(range(1, 2))
-    print(datasets)
+    datasets, files = sc.scrape_data(range(1, 11))
+    #print(datasets)
     pass

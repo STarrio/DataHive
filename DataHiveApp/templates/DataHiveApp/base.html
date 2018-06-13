@@ -8,6 +8,18 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+		<style>
+			hr {
+				height: 1px;
+				background-color: #cccccc;
+				margin-top: 20px;
+				margin-bottom: 20px;
+				width: 100%;
+			}
+			.vertical-center {
+                margin-top: 5%;
+			}
+		</style>
 	</head>
 	<body>
 		<nav class="navbar navbar-default">
@@ -15,12 +27,15 @@
 
                 {% url 'DataHiveApp:index' as index_url %}
                 {% url 'DataHiveApp:config' as config_url %}
+                {% url 'DataHiveApp:dataset.list' as dataset_url %}
 
 				<div class="navbar-header">
 					<a class="navbar-brand" href="{{index_url}}">Data Hive</a>
 				</div>
 				<ul class="nav navbar-nav">
 					<li {% if request.path == index_url %}class="active"{% endif %}><a href="{{index_url}}">Home</a></li>
+                    <li {% if dataset_url in request.path %}class="active"{% endif %}><a href="{{dataset_url}}">Datasets</a></li>
+
 				</ul>
    				<ul class="nav navbar-nav navbar-right">
                     <li {% if request.path == config_url %}class="active"{% endif %}>

@@ -1,0 +1,130 @@
+{% extends 'DataHiveApp/base.html' %}
+
+{% block content %}
+	<div class="panel panel-info">
+        <div class="panel-heading">
+            <h2> {{object.title}} </h2>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="panel-title pull-left">
+                                  Dataset info
+                            </div>
+                            <div class="panel-title pull-right">
+                                <small>{{dataset.publication_date | date:"SHORT_DATE_FORMAT"}}</small>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12 ">
+                                    <div class="row">
+                                        <div class="col-md-12 ">
+                                            <h4>Abstract</h4>
+                                        </div>
+                                        <div class="col-md-8 col-md-offset-2">
+                                            <p>{{dataset.abstract | default_if_none:"No abstract" }}</p>
+                                        </div>
+                                        <div class="col-md-12"><hr></div>
+
+                                        <div class="col-md-12 ">
+                                            <h4>Authors</h4>
+                                        </div>
+                                        <div class="col-md-8 col-md-offset-2">
+                                            <ul class="list-group">
+                                            {% for author in object.authors %}
+                                                <li class="list-group-item">{{ author }}</li>
+                                            {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-12"><hr></div>
+
+                                        <div class="col-md-12 ">
+                                            <h4>Keywords</h4>
+                                        </div>
+                                        <div class="col-md-8 col-md-offset-2">
+                                            <p>
+                                                {% if dataset.keywords %}
+                                                    {{dataset.keywords | join:" , "  }}
+                                                {% else %}
+                                                    No keywords
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-12"><hr></div>
+
+                                        <div class="col-md-12 ">
+                                            <h4>Categories</h4>
+                                        </div>
+                                        <div class="col-md-8 col-md-offset-2">
+                                            <p>
+                                                {% if dataset.categories.all %}
+                                                    {% for category in dataset.categories.all %}
+                                                        {{category}}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    No categories
+                                                {% endif %}
+                                            </p>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="panel-title text-center">
+                                Files
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <a class="btn btn-info btn-block" href="{{object.get_files_download_url}}">
+                                        <i class="glyphicon glyphicon-download-alt"></i>
+                                        Download all
+                                    </a>
+                                    <br>
+                                </div>
+
+                                {% for file in object.files.all %}
+                                    <div class="col-md-12">
+                                        <div class="panel panel-info">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-9">
+                                                        <h4 style="white-space: nowrap; overflow:hidden; text-overflow:ellipsis;">{{file.name}}</h4>
+                                                        <p>{{file.size}} - {{file.file_type}}</p>
+                                                    </div>
+                                                    <div class="col-md-3 vertical-center">
+                                                        <a class="btn btn-info"
+                                                           href="{{file.get_file_download_url}}">
+                                                            <i class="glyphicon glyphicon-download-alt"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -50,7 +50,26 @@ class File(models.Model):
     id_in_source = models.CharField(max_length=250)
     name = models.CharField(max_length=250)
     attributes = ArrayField(models.CharField(max_length=100), null=True, blank=True)
+    size = models.CharField(max_length=20, blank=True, null=True)
+    file_type = models.CharField(max_length=50, blank=True, null=True)
     dataset = models.ForeignKey('DataSet', related_name='files', on_delete=models.CASCADE)
+
+    def get_file_download_url(self):
+
+        dataverse_file_download_url = "https://dataverse.harvard.edu/api/access/datafiles/{0}"
+        uci_file_download_url = ""
+        kaggle_file_download_url = ""
+
+        # TODO: define kaggle/uci functions
+        get_url = {
+            'DATAVERSE': lambda: dataverse_file_download_url.format(self.id_in_source)
+            ,
+            "KAGGLE": (lambda x: x)
+            ,
+            "UCI": (lambda x: x)
+        }
+
+        return get_url[str(self.dataset.source)]()
 
     def __str__(self):
         return "{0} -- {1}".format(self.name, self.dataset)

@@ -35,9 +35,8 @@ def load_files(files, created_datasets):
 
 
 @transaction.atomic
-def load_data(repo_name, num_pages):
+def load_data(repo, num_pages):
     """ Execute scraping, insert datasets/files into db and update repository metadata """
-    repo = RepoMetadata.objects.get(name=repo_name)
     page_range = range(repo.last_fetch_page + 1, repo.last_fetch_page + 1 + num_pages)
 
     datasets, files = DataverseScraper.DataverseScraper().scrape_data(page_range)
@@ -51,6 +50,9 @@ def load_data(repo_name, num_pages):
 
 
 if __name__ == '__main__':
-    load_data('DATAVERSE', 1)
+    repo_name = 'DATAVERSE'
+    repo = RepoMetadata.objects.get(name=repo_name)
+    for _ in range(5):
+        load_data(repo, 1)
 
 

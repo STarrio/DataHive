@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from .forms import CronConfigForm
 from .scripts import manage_load_cron
+from .models import DataSet
+from django.views.generic import DetailView
 
 def index(request):
     return render(request, 'DataHiveApp/index.html')
@@ -22,3 +24,12 @@ def config(request):
         form = CronConfigForm(data) if data != {} else CronConfigForm({'minutes': 1, 'hours': 1, 'days': 1})
 
     return render(request, 'DataHiveApp/configuration.html', {'form': form})
+
+
+class DataSetDetailView(DetailView):
+    model = DataSet
+
+
+def random_dataset(request):
+    ds = DataSet.objects.order_by('?').first().id
+    return redirect('/dataset/'+str(ds))
