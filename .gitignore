@@ -11,3 +11,5 @@ env/
 scraping_engine/ignoreThis.ipynb
 scraping_engine/.ipynb_checkpoints
 
+# Whoosh
+whoosh_index/

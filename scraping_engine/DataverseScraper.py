@@ -67,6 +67,7 @@ class DataverseScraper:
                 entry['title'] = ex(lambda: metadata.find(attrs={"for": "metadata_title"}).find_next_sibling().text.strip())
                 entry['authors'] = ex(lambda: str_split_strip('\n', metadata.find(attrs={"for": "metadata_author"}).find_next_sibling().text))
                 entry['description'] = ex(lambda: metadata.find(attrs={"for": "metadata_dsDescription"}).find_next_sibling().text.strip())
+                entry['abstract'] = None
 
                 keywords = metadata.find(attrs={"for": "metadata_keyword"})
                 entry['keywords'] = str_split_strip(',|\n', keywords.find_next_sibling().text) if keywords else None
@@ -74,7 +75,6 @@ class DataverseScraper:
                 # Files
                 files_data = detail.find('div', attrs={"id": re.compile("dataFilesTab")}).find_all('td', class_='col-file-metadata')
 
-                ids_file = []
                 dataset_files = []
                 for file in files_data:
                     a_file = file.find('a')
@@ -86,7 +86,6 @@ class DataverseScraper:
 
                     dataset_files.append({'id_in_source': file_id, 'name': file_name,
                                           'size': file_size, 'file_type': file_type})
-                    ids_file.append(file_id)
 
                 entry['source_id'] = self.repo
 

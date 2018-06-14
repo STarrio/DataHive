@@ -4,16 +4,17 @@ import extension_dict
 import utils
 
 IGNORED_DATASETS = ["UJI Pen Characters (Version 2)",
-                                           "Prodigy",
-                                           "Reuters Transcribed Subset",
-                                           "UJIIndoorLoc-Mag",
-                                           "Dishonest Internet users Dataset",
-                                           "APS Failure at Scania Trucks",
-                                           "IDA2016Challenge",
-                                           "chestnut – LARVIC",
-                                           "Early biomarkers of Parkinson's disease based on natural connected speech",
-                                           "Improved Spiral Test Using Digitized Graphics Tablet for Monitoring Parkinson’s Disease",
-                                           "Mesothelioma’s disease data set"]
+                    "Prodigy",
+                    "Reuters Transcribed Subset",
+                    "UJIIndoorLoc-Mag",
+                    "Dishonest Internet users Dataset",
+                    "APS Failure at Scania Trucks",
+                    "IDA2016Challenge",
+                    "chestnut – LARVIC",
+                    "Early biomarkers of Parkinson's disease based on natural connected speech",
+                    "Improved Spiral Test Using Digitized Graphics Tablet for Monitoring Parkinson’s Disease",
+                    "Mesothelioma’s disease data set"]
+
 
 class UCIScraper:
 

@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, reverse
 from .forms import CronConfigForm
 from .scripts import manage_load_cron
 from .models import DataSet
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
+from search_engine.whoosh_functions import search_doc
 
 def index(request):
     return render(request, 'DataHiveApp/index.html')
@@ -28,6 +29,28 @@ def config(request):
 
 class DataSetDetailView(DetailView):
     model = DataSet
+
+
+class DataSetListView(ListView):
+    model = DataSet
+    template_name = 'DataHiveApp/dataset_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        q = self.request.GET.get("q")
+        context['input'] = q
+        return context
+
+    def get_queryset(self):
+        queryset = None
+        if self.request.GET.get("q"):
+            results = search_doc(self.request.GET.get("q"))
+            if results:
+                queryset = DataSet.objects.filter(pk__in=[result['dataset_id'] for result in results])
+        else:
+            queryset = DataSet.objects.all()
+        return queryset
+
 
 
 def random_dataset(request):

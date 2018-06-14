@@ -1,0 +1,12 @@
+{% extends 'DataHiveApp/base.html' %}
+
+{% block content %}
+    <ul>
+	{% for dataset in object_list %}
+        <li>{{dataset.title}}</li>
+    {% empty %}
+        No datasets yet.
+    {% endfor %}
+    </ul>
+
+{% endblock %}

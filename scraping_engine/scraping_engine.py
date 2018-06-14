@@ -1,2 +1,0 @@
-import beautifulsoup as bs
-
