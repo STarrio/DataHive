@@ -1,10 +1,16 @@
 {% extends 'DataHiveApp/base.html' %}
 
 {% block content %}
+
+{% url 'DataHiveApp:download' as download_url %}
+
 	<div class="panel panel-info">
-        <div class="panel-heading">
-            <h2> {{object.title}} </h2>
+        <div class="panel-body">
+            <h3> {{object.title}} </h3>
+            <p>{{dataset.get_abstract | default_if_none:''}}</p>
         </div>
+    </div>
+    <div class="panel panel-info">
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-8">
@@ -25,20 +31,22 @@
                                 <div class="col-md-12 ">
                                     <div class="row">
                                         <div class="col-md-12 ">
-                                            <h4>Abstract</h4>
+                                            <h4>Description</h4>
                                         </div>
-                                        <div class="col-md-8 col-md-offset-2">
-                                            <p>{{dataset.abstract | default_if_none:"No abstract" }}</p>
+                                        <div class="col-md-11 col-md-offset-1">
+                                            <p>{{dataset.get_description | default_if_none:''}}</p>
                                         </div>
                                         <div class="col-md-12"><hr></div>
 
                                         <div class="col-md-12 ">
                                             <h4>Authors</h4>
                                         </div>
-                                        <div class="col-md-8 col-md-offset-2">
+                                        <div class="col-md-11 col-md-offset-1">
                                             <ul class="list-group">
                                             {% for author in object.authors %}
                                                 <li class="list-group-item">{{ author }}</li>
+                                            {% empty %}
+                                                No authors
                                             {% endfor %}
                                             </ul>
                                         </div>
@@ -47,7 +55,7 @@
                                         <div class="col-md-12 ">
                                             <h4>Keywords</h4>
                                         </div>
-                                        <div class="col-md-8 col-md-offset-2">
+                                        <div class="col-md-11 col-md-offset-1">
                                             <p>
                                                 {% if dataset.keywords %}
                                                     {{dataset.keywords | join:" , "  }}
@@ -61,16 +69,21 @@
                                         <div class="col-md-12 ">
                                             <h4>Categories</h4>
                                         </div>
-                                        <div class="col-md-8 col-md-offset-2">
-                                            <p>
-                                                {% if dataset.categories.all %}
-                                                    {% for category in dataset.categories.all %}
-                                                        {{category}}
-                                                    {% endfor %}
-                                                {% else %}
-                                                    No categories
-                                                {% endif %}
-                                            </p>
+                                        <div class="col-md-11 col-md-offset-1">
+
+                                                <ul class="list-group">
+                                                    <div class="row">
+                                                    {% if dataset.categories.all %}
+                                                        {% for category in dataset.categories.all %}
+                                                            <div class="col-md-3">
+                                                                <div class="list-group-item">{{category}}</div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        No categories
+                                                    {% endif %}
+                                                    </div>
+                                                </ul>
                                         </div>
 
 
@@ -91,6 +104,7 @@
                     <div class="panel panel-info">
                         <div class="panel-body">
                             <div class="row">
+                                {% if object.get_files_download_url %}
                                 <div class="col-md-12">
                                     <a class="btn btn-info btn-block" href="{{object.get_files_download_url}}">
                                         <i class="glyphicon glyphicon-download-alt"></i>
@@ -98,7 +112,7 @@
                                     </a>
                                     <br>
                                 </div>
-
+                                {% endif %}
                                 {% for file in object.files.all %}
                                     <div class="col-md-12">
                                         <div class="panel panel-info">
@@ -110,7 +124,8 @@
                                                     </div>
                                                     <div class="col-md-3 vertical-center">
                                                         <a class="btn btn-info"
-                                                           href="{{file.get_file_download_url}}">
+                                                           href="{% url 'DataHiveApp:download' file_url=file.get_file_download_url %}"
+                                                           download>
                                                             <i class="glyphicon glyphicon-download-alt"></i>
                                                         </a>
                                                     </div>

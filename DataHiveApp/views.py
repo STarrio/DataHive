@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
 from .forms import CronConfigForm
 from .scripts import manage_load_cron
 from .models import DataSet
 from django.views.generic import DetailView, ListView
 from search_engine.whoosh_functions import search_doc
+from django.http import StreamingHttpResponse
+import requests
+
 
 def index(request):
     return render(request, 'DataHiveApp/index.html')
@@ -51,6 +54,13 @@ class DataSetListView(ListView):
             queryset = DataSet.objects.all()
         return queryset
 
+
+def download_from_url(request, file_url):
+    r = requests.get(file_url, stream=True)
+    resp = StreamingHttpResponse(streaming_content=r)
+    file_name = file_url.split("/")[-1]
+    resp['Content-Disposition'] = 'attachment;filename="'+file_name+'"'
+    return resp
 
 
 def random_dataset(request):

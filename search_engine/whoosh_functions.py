@@ -35,3 +35,13 @@ def search_doc(txt):
         results = searcher.search(query)
         results = [dict(r) for r in results]
     return results
+
+
+def search_doc_by_id(id_):
+    ix = open_dir(whoosh_index)
+
+    with ix.searcher() as searcher:
+        query = QueryParser("dataset_id", ix.schema).parse(str(id_))
+        results = searcher.search(query)
+        results = dict(results[0])
+    return results

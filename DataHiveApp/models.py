@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from django.utils import timezone
+from search_engine.whoosh_functions import search_doc_by_id
 
 REPOS = (
     ("DATAVERSE", "Harvard Dataverse"),
@@ -38,12 +38,23 @@ class DataSet(models.Model):
 
         return get_url[str(self.source)](self.files.all())
 
+    def get_abstract(self):
+        whoosh_data = search_doc_by_id(self.id)
+        return whoosh_data['abstract'] if 'abstract' in whoosh_data else None
+
+    def get_description(self):
+        whoosh_data = search_doc_by_id(self.id)
+        return whoosh_data['description'] if 'description' in whoosh_data else None
+
     def __str__(self):
         return "{0} ({1})".format(self.title, self.source)
 
 
 class Category(models.Model):
     name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class File(models.Model):
@@ -64,7 +75,7 @@ class File(models.Model):
         get_url = {
             'DATAVERSE': lambda: dataverse_file_download_url.format(self.id_in_source)
             ,
-            "UCI": (lambda: uci_file_download_url+self.dataset.download_url+self.id_in_source)
+            "UCI": (lambda: self.dataset.download_url+self.id_in_source)
         }
 
         return get_url[str(self.dataset.source)]()
