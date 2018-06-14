@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib.request
 import extension_dict
+import utils
 
 IGNORED_DATASETS = ["UJI Pen Characters (Version 2)",
                                            "Prodigy",
@@ -33,13 +34,13 @@ class UCIScraper:
     def get_ds(self,path):
         # Retrieves data from a single dataset
         f = urllib.request.urlopen(self.base_url+path)
-        bs = BeautifulSoup(f,'lxml')
+        bs = BeautifulSoup(f,'html.parser')
         return bs.find_all("table")[1]
 
     def get_files(self,path):
         # Retrieves data from dataset's files
         f = urllib.request.urlopen(self.base_url+path)
-        bs = BeautifulSoup(f,'lxml')
+        bs = BeautifulSoup(f,'html.parser')
         return bs.table.contents[7:-3]
 
     def scrape_data(self):
@@ -58,7 +59,8 @@ class UCIScraper:
         l_ds=l[1].find_all("table")[3].find_all("tr")[1:]
         entries = []
         files = []
-        for i in range(len(l_ds)//2):
+        categories = list()
+        for i in range(15):#len(l_ds)//2):
             entry = {}
             ds_soup = l_ds[2*i]
             path = ds_soup.a['href']
@@ -69,9 +71,10 @@ class UCIScraper:
                 continue
 
             entry["url"] = self.base_url + path
-            entry["name"] = name
-            entry["no_instances"] = ds_soup.contents[11].p.string.replace('\xa0','') if len(ds_soup.contents)>11 else ""
-            entry["no_attr"] = ds_soup.contents[13].p.string.replace('\xa0','') if len(ds_soup.contents)>13 else ""
+            entry["title"] = name
+
+            entry["no_instances"] = utils.ex(lambda: ds_soup.contents[11].p.string.replace('\xa0','') if ds_soup.contents[11].p.string.replace('\xa0','').isdigit() else None)
+            entry["no_attr"] = utils.ex(lambda: ds_soup.contents[13].p.string.replace('\xa0','') if ds_soup.contents[13].p.string.replace('\xa0','').isdigit() else None)
 
             # scraping over url with get_ds(url)
             detail = self.get_ds(path)
@@ -84,36 +87,35 @@ class UCIScraper:
             area = detail.table.find_next_sibling().find_all("tr")[0].find_all("td")[-1].p.string
             description = "".join([s if type(s)==str else s.string for s in detail.find_all("p",class_="small-heading")[1].find_next_sibling().contents if len(s)>6])
 
-            entry["files_download_url"] = self.base_url + download_url
+            entry["download_url"] = self.base_url + download_url
             entry["abstract"] = abstract
-            entry["category"] = area
+            categories.append(area)
             entry["description"] = description
 
-            files = self.get_files(download_url)
+            files_s = self.get_files(download_url)
 
-            files_data = [(f.td.find_next_siblings()[0].a['href'],f.td.find_next_siblings()[2].string) for f in files if f!='\n']
+            files_data = [(f.td.find_next_siblings()[0].a['href'],f.td.find_next_siblings()[2].string) for f in files_s if f!='\n']
 
             dataset_files = []
 
             for f in files_data:
-                file_id = f[0]
-                file_name = f[0]
+                file_id_name = f[0]
                 file_size = f[1]
 
-                file_name_separated = file_id.split(".")
+                file_name_separated = file_id_name.split(".")
                 file_type = self.extension_dict[file_name_separated[-1]] if len(file_name_separated)>1 else "Plain text"
 
-                dataset_files.append({'id_in_source':file_id, 'name':file_name, 'size':file_size, 'file_type':file_type})
+                dataset_files.append({'id_in_source':file_id_name, 'name':file_id_name, 'size':file_size, 'file_type':file_type})
 
             entry['source_id'] = self.repo
             entries.append(entry)
             files.append(dataset_files)
 
-        return entries, files
+        return entries, files, categories
 
 
-# if __name__ == "__main__":
-#     sc = DataverseScraper()
-#     datasets, files = sc.scrape_data(range(1, 2))
-#     print(datasets)
-#     pass
+if __name__ == "__main__":
+    sc = DataverseScraper()
+    datasets, files = sc.scrape_data(range(1, 2))
+    print(datasets)
+    pass

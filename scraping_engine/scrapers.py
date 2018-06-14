@@ -38,3 +38,10 @@ class UCIScraper:
             # scraping over url with get_ds(url)
             entries.append(entry)
         return entries
+
+
+# if __name__ == "__main__":
+#     sc = DataverseScraper()
+#     datasets, files = sc.scrape_data(range(1, 2))
+#     print(datasets)
+#     pass

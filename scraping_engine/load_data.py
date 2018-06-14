@@ -11,11 +11,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "DataHive.settings")
 django.setup()
 
 from django.db import transaction
-from DataHiveApp.models import DataSet, File, RepoMetadata
+from DataHiveApp.models import DataSet, File, RepoMetadata, Category
 import DataverseScraper
+import UCIScraper
 
 
-def load_datasets(datasets):
+def load_datasets(datasets, categories):
     bulk_datasets = []
     for d in datasets:
         # insert description at a Whoosh instance
@@ -24,8 +25,11 @@ def load_datasets(datasets):
 
         bulk_datasets.append(DataSet(**d))
 
-    return DataSet.objects.bulk_create(bulk_datasets)
+    created_datasets = DataSet.objects.bulk_create(bulk_datasets)
 
+    for c, d in zip(categories, created_datasets):
+        d.categories.set([cat[0].id for cat in c])
+    return created_datasets
 
 def load_files(files, created_datasets):
     bulk_files = [File(**dict({'dataset': d}, **f))
@@ -34,8 +38,18 @@ def load_files(files, created_datasets):
     File.objects.bulk_create(bulk_files)
 
 
+def load_categories(categories):
+    created_categories = []
+    for c in categories:
+        if type(c) == 'list':
+            created_categories.append([Category.objects.get_or_create(name=cat) for cat in c])
+        else:
+            created_categories.append([Category.objects.get_or_create(name=c)])
+    return created_categories
+
+
 @transaction.atomic
-def load_data(repo, num_pages):
+def load_data_verse(repo, num_pages):
     """ Execute scraping, insert datasets/files into db and update repository metadata """
     page_range = range(repo.last_fetch_page + 1, repo.last_fetch_page + 1 + num_pages)
 
@@ -48,11 +62,23 @@ def load_data(repo, num_pages):
     repo.last_fetch_dataset = last_created_dataset
     repo.save()
 
+@transaction.atomic
+def load_data_uci():
+    """ Execute scraping from UCI Dataset Repository """
+    datasets, files, categories = UCIScraper.UCIScraper().scrape_data()
+    created_categories = load_categories(categories)
+    created_datasets = load_datasets(datasets, created_categories)
+
+    load_files(files,created_datasets)
+
+
 
 if __name__ == '__main__':
-    repo_name = 'DATAVERSE'
-    repo = RepoMetadata.objects.get(name=repo_name)
+    repo_name_dv = 'DATAVERSE'
+    repo_dv = RepoMetadata.objects.get(name=repo_name_dv)
+
+    load_data_uci()
     for _ in range(5):
-        load_data(repo, 1)
+        load_data_verse(repo_dv, 1)
 
 

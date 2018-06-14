@@ -4,7 +4,6 @@ from django.utils import timezone
 
 REPOS = (
     ("DATAVERSE", "Harvard Dataverse"),
-    ("KAGGLE", "Kaggle"),
     ("UCI", "UCI - Machine Learning Repository")
 )
 
@@ -15,8 +14,11 @@ class DataSet(models.Model):
     title = models.CharField(max_length=250)
     authors = ArrayField(models.CharField(max_length=250), null=True, blank=True)
     abstract = models.TextField(null=True, blank=True)
+    no_instances = models.IntegerField(null=True, default=None)
+    no_attr = models.IntegerField(null=True, default=None)
     url = models.URLField(unique=True)
-    publication_date = models.DateTimeField()
+    download_url = models.URLField(null=True)
+    publication_date = models.DateTimeField(null=True)
     keywords = ArrayField(models.CharField(max_length=150), null=True, blank=True)
     source = models.ForeignKey('RepoMetadata', related_name='datasets', on_delete=models.DO_NOTHING)
     categories = models.ManyToManyField('Category', blank=True)
@@ -31,9 +33,7 @@ class DataSet(models.Model):
         get_url = {
             'DATAVERSE': lambda files: dataverse_file_download_url.format(",".join([f.id_in_source for f in files]))
             ,
-            "KAGGLE": (lambda x: x)
-            ,
-            "UCI": (lambda x: x)
+            "UCI": (lambda  x: None)
         }
 
         return get_url[str(self.source)](self.files.all())
@@ -57,16 +57,14 @@ class File(models.Model):
     def get_file_download_url(self):
 
         dataverse_file_download_url = "https://dataverse.harvard.edu/api/access/datafiles/{0}"
-        uci_file_download_url = ""
+        uci_file_download_url = "http://archive.ics.uci.edu/ml/"
         kaggle_file_download_url = ""
 
         # TODO: define kaggle/uci functions
         get_url = {
             'DATAVERSE': lambda: dataverse_file_download_url.format(self.id_in_source)
             ,
-            "KAGGLE": (lambda x: x)
-            ,
-            "UCI": (lambda x: x)
+            "UCI": (lambda: uci_file_download_url+self.dataset.download_url+self.id_in_source)
         }
 
         return get_url[str(self.dataset.source)]()
