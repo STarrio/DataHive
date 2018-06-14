@@ -6,8 +6,14 @@
 
 	<div class="panel panel-info">
         <div class="panel-body">
+            <div class="col-xs-1">
+            <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
+                                                        width="25px" style="padding-top:20px"/>
+            </div>
+            <div class="col-xs-11">
             <h3> {{object.title}} </h3>
             <p>{{dataset.get_abstract | default_if_none:''}}</p>
+        </div>
         </div>
     </div>
     <div class="panel panel-info">
@@ -17,7 +23,7 @@
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <div class="panel-title pull-left">
-                                  Dataset info
+                                  <h4>Dataset info</h4>
                             </div>
                             <div class="panel-title pull-right">
                                 <small>{{dataset.publication_date | date:"SHORT_DATE_FORMAT"}}</small>
@@ -60,7 +66,7 @@
                                                 {% if dataset.keywords %}
                                                     {{dataset.keywords | join:" , "  }}
                                                 {% else %}
-                                                    No keywords
+                                                    {{dataset.get_keywords | join:", "}}
                                                 {% endif %}
                                             </p>
                                         </div>
@@ -96,8 +102,8 @@
                 <div class="col-md-4">
                     <div class="panel panel-info">
                         <div class="panel-heading">
-                            <div class="panel-title text-center">
-                                Files
+                            <div class="panel-title">
+                                <h4>Files</h4>
                             </div>
                         </div>
                     </div>
@@ -137,7 +143,43 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <h4>Similar datasets</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="row">
+                                {% for ds in object.get_recommended %}
+                                    <div class="col-md-12">
+                                        <div class="panel panel-info">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-sm-1">
+                                                        <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
+                                                        width="25px"/>
+                                                     </div>
+                                                    <div class="col-sm-9">
+
+                                                        <a href="{% url "DataHiveApp:dataset.detail" pk=ds.id %}" ><h4 style=" overflow:hidden; text-overflow:ellipsis;">{{ds.title}}</h4>
+                                                        </a>
+
+                                                        <p>{{ds.get_abstract | default_if_none:"<i>No abstract</i>"}}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>

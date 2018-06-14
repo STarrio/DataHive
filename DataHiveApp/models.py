@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from search_engine.whoosh_functions import search_doc_by_id
+from search_engine.whoosh_functions import search_doc_by_id, get_three_like_this,get_keywords_id
 
 REPOS = (
     ("DATAVERSE", "Harvard Dataverse"),
@@ -45,6 +45,13 @@ class DataSet(models.Model):
     def get_description(self):
         whoosh_data = search_doc_by_id(self.id)
         return whoosh_data['description'] if 'description' in whoosh_data else None
+
+    def get_recommended(self):
+        recommended = get_three_like_this(self.id)
+        return DataSet.objects.filter(pk__in=[r["dataset_id"] for r in recommended])
+
+    def get_keywords(self):
+        return get_keywords_id(self.id)
 
     def __str__(self):
         return "{0} ({1})".format(self.title, self.source)

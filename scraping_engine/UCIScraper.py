@@ -13,7 +13,8 @@ IGNORED_DATASETS = ["UJI Pen Characters (Version 2)",
                     "chestnut – LARVIC",
                     "Early biomarkers of Parkinson's disease based on natural connected speech",
                     "Improved Spiral Test Using Digitized Graphics Tablet for Monitoring Parkinson’s Disease",
-                    "Mesothelioma’s disease data set"]
+                    "Mesothelioma’s disease data set",
+                    "UNIX User Data"]
 
 
 class UCIScraper:
@@ -82,12 +83,16 @@ class UCIScraper:
             try:
                 download_url = detail.table.span.find_next_siblings()[1].contents[2]['href'][3:]
             except:
+                print(entry["title"])
                 print("IGNORE THIS ONE")
                 continue
             abstract = detail.p.find_next_sibling().contents[1][2:]
             area = detail.table.find_next_sibling().find_all("tr")[0].find_all("td")[-1].p.string
-            description = "".join([s if type(s)==str else s.string for s in detail.find_all("p",class_="small-heading")[1].find_next_sibling().contents if len(s)>6])
-
+            try:
+                description = "".join([s if type(s)==str else s.string for s in detail.find_all("p",class_="small-heading")[1].find_next_sibling().contents if len(s)>6])
+            except:
+                print(entry["title"])
+                continue
             entry["download_url"] = self.base_url + download_url
             entry["abstract"] = abstract
             categories.append(area)

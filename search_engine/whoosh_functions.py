@@ -44,4 +44,31 @@ def search_doc_by_id(id_):
         query = QueryParser("dataset_id", ix.schema).parse(str(id_))
         results = searcher.search(query)
         results = dict(results[0])
+
     return results
+
+def get_three_like_this(id_):
+    ix = open_dir(whoosh_index)
+
+    with ix.searcher() as searcher:
+        query = QueryParser("dataset_id", ix.schema).parse(str(id_))
+        results = searcher.search(query)
+        keys = results[0].more_like_this("description")[:3]
+        keywords = [dict(k) for k in keys]
+
+    return keywords
+
+def get_keywords_id(id_):
+    ix = open_dir(whoosh_index)
+
+    with ix.searcher() as searcher:
+        query = QueryParser("dataset_id", ix.schema).parse(str(id_))
+        results = searcher.search(query)
+        try:
+            keys = results.key_terms("abstract")
+            keywords = [k[0] for k in keys][:3]
+        except:
+            keywords = ["No keywords"]
+
+    return keywords
+
