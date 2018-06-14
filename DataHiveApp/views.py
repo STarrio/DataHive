@@ -36,22 +36,18 @@ class DataSetDetailView(DetailView):
 
 class DataSetListView(ListView):
     model = DataSet
+    paginate_by = 10
     template_name = 'DataHiveApp/dataset_list.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        q = self.request.GET.get("q")
-        context['input'] = q
-        return context
-
     def get_queryset(self):
-        queryset = None
+        queryset = []
         if self.request.GET.get("q"):
             results = search_doc(self.request.GET.get("q"))
             if results:
                 queryset = DataSet.objects.filter(pk__in=[result['dataset_id'] for result in results])
         else:
             queryset = DataSet.objects.all()
+
         return queryset
 
 

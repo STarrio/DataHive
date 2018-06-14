@@ -37,7 +37,7 @@ def load_datasets(datasets, categories):
     whoosh_functions.insert_docs([dict({'dataset_id': str(d.id)}, **wh) for wh, d in zip(whoosh_data, created_datasets)])
 
     for c, d in zip(categories, created_datasets):
-        d.categories.set([cat[0].id for cat in c])
+        d.categories.set([cat[0].id for cat in c if cat is not None])
     return created_datasets
 
 
@@ -52,9 +52,9 @@ def load_categories(categories):
     created_categories = []
     for c in categories:
         if type(c) == 'list':
-            created_categories.append([Category.objects.get_or_create(name=cat) for cat in c])
+            created_categories.append([Category.objects.get_or_create(name=cat) for cat in c if cat is not None])
         else:
-            created_categories.append([Category.objects.get_or_create(name=c)])
+            created_categories.append([Category.objects.get_or_create(name=c)] if c is not None else [])
     return created_categories
 
 
@@ -63,8 +63,8 @@ def load_data_verse(repo, num_pages):
     """ Execute scraping, insert datasets/files into db and update repository metadata """
     page_range = range(repo.last_fetch_page + 1, repo.last_fetch_page + 1 + num_pages)
 
-    datasets, files = DataverseScraper.DataverseScraper().scrape_data(page_range)
-    created_categories = []
+    datasets, files, categories = DataverseScraper.DataverseScraper().scrape_data(page_range)
+    created_categories = load_categories(categories)
     created_datasets = load_datasets(datasets, created_categories)
     load_files(files, created_datasets)
 

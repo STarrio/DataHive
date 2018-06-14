@@ -48,6 +48,7 @@ class DataverseScraper:
 
         entries = []
         files = []
+        categories = []
         for page in pages:
             l = self.get_data(page)
             for l_ds in l:
@@ -67,6 +68,8 @@ class DataverseScraper:
                 entry['title'] = ex(lambda: metadata.find(attrs={"for": "metadata_title"}).find_next_sibling().text.strip())
                 entry['authors'] = ex(lambda: str_split_strip('\n', metadata.find(attrs={"for": "metadata_author"}).find_next_sibling().text))
                 entry['description'] = ex(lambda: metadata.find(attrs={"for": "metadata_dsDescription"}).find_next_sibling().text.strip())
+                categ = ex(lambda: metadata.find(attrs={"for": "metadata_subject"}).find_next_sibling().text.strip())
+                categories.append(categ)
                 entry['abstract'] = None
 
                 keywords = metadata.find(attrs={"for": "metadata_keyword"})
@@ -92,7 +95,7 @@ class DataverseScraper:
                 entries.append(entry)
                 files.append(dataset_files)
 
-        return entries, files
+        return entries, files, categories
 
 
 if __name__ == "__main__":
