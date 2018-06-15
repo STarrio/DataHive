@@ -38,6 +38,9 @@ class DataSet(models.Model):
 
         return get_url[str(self.source)](self.files.all())
 
+    def get_n_files(self):
+        return len(self.files.all())
+
     def get_abstract(self):
         whoosh_data = search_doc_by_id(self.id)
         return whoosh_data['abstract'] if 'abstract' in whoosh_data else None

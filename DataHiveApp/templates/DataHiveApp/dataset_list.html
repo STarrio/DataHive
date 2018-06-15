@@ -2,13 +2,30 @@
 
 {% block content %}
     {% load extra_filters %}
-    <ul>
+    <h3>Dataset list</h3>
+    <hr/>
+    <div class="col-md-10 col-md-push-1">
 	{% for dataset in object_list %}
-        <li><a href="{{dataset.id}}">{{dataset.title}}</a></li>
+                    <div class="panel panel-info">
+                        <div class="panel-body">
+                            <div class="col-xs-1">
+                            <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
+                                                                        width="25px" style="padding-top:20px"/>
+                            </div>
+                            <div class="col-xs-11">
+                            <h3> <a href="{{dataset.id}}">{{dataset.title}}</a> <span class="badge">{{dataset.get_n_files}} files </span></h3>
+                            <p>{{dataset.get_abstract | default_if_none:''}}</p>
+                        </div>
+                        </div>
+                    </div>
+
+
     {% empty %}
         No datasets found
     {% endfor %}
-    </ul>
+    </div>
+
+    <div class="clearfix"></div>
 
     <ul class="pagination">
     {% if is_paginated %}

@@ -4,14 +4,14 @@
 
 {% url 'DataHiveApp:download' as download_url %}
 
-	<div class="panel panel-info">
+    <div class="panel panel-info">
         <div class="panel-body">
             <div class="col-xs-1">
             <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
                                                         width="25px" style="padding-top:20px"/>
             </div>
             <div class="col-xs-11">
-            <h3> {{object.title}} </h3>
+            <h3> {{object.title}} <span class="badge">{{dataset.get_n_files}} files </span> </h3>
             <p>{{dataset.get_abstract | default_if_none:''}}</p>
         </div>
         </div>
@@ -103,7 +103,7 @@
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <div class="panel-title">
-                                <h4>Files</h4>
+                                <h4>Files </h4>
                             </div>
                         </div>
                     </div>
@@ -165,7 +165,7 @@
                                                      </div>
                                                     <div class="col-sm-9">
 
-                                                        <a href="{% url "DataHiveApp:dataset.detail" pk=ds.id %}" ><h4 style=" overflow:hidden; text-overflow:ellipsis;">{{ds.title}}</h4>
+                                                        <a href="{% url "DataHiveApp:dataset.detail" pk=ds.id %}" ><h4 style=" overflow:hidden; text-overflow:ellipsis;">{{ds.title}} <span class="badge">{{ds.get_n_files}} files </span></h4>
                                                         </a>
 
                                                         <p>{{ds.get_abstract | default_if_none:"<i>No abstract</i>"}}</p>
