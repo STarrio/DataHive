@@ -1,5 +1,51 @@
 {% extends 'DataHiveApp/base.html' %}
 
 {% block content %}
-	<h1>Main page</h1>
+{% load static %}
+	  <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+            <img width="100%" src="{% static 'img/logo.svg' %}" />
+        </div>
+        <div class="col-md-10">
+            <h1>DataHive</h1>
+            <p>Your meta-repository for Machine Learning</p>
+        </div>
+    </div>
+
+
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-4">
+          <h2>Multiple sources</h2>
+          <p> At DataHive we curate and sort datasets from multiple sources like Harvard's Dataverse, UCI Machine
+          Learning Repository and others so that you can find them all in one place without effort.  </p>
+          <p><a class="btn btn-default" href="dataset" role="button">Try it &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+          <h2>Useful insights</h2>
+          <p>We have developed a complex recommendation system based on the similarities found between
+            the datasets. Thanks to this, you can always find useful transversal data for your research.</p>
+          <p><a class="btn btn-default" href="dataset" role="button">Try it &raquo;</a></p>
+       </div>
+        <div class="col-md-4">
+          <h2>Always up to date</h2>
+          <p>Our database is constantly being updated. Our ecosystem grows day after day. Thanks to
+        our community (<i>the hive</i>), we work more efficiently, faster, and to a greater scope. Taste the honey, honey.</p>
+          <p><a class="btn btn-default" href="dataset" role="button">Try it &raquo;</a></p>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; 2018 DataHive, Inc.</p>
+      </footer>
+    </div> <!-- /container -->
 {% endblock %}
