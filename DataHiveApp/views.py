@@ -36,7 +36,7 @@ class DataSetDetailView(DetailView):
 
 class DataSetListView(ListView):
     model = DataSet
-    paginate_by = 10
+    paginate_by = 20
     template_name = 'DataHiveApp/dataset_list.html'
 
     def get_queryset(self):

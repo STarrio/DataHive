@@ -1,6 +1,6 @@
 from whoosh.index import create_in, open_dir
 from whoosh.fields import *
-from whoosh.qparser import QueryParser
+from whoosh.qparser import QueryParser, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.writing import AsyncWriter
 
@@ -14,7 +14,8 @@ def create_schema():
 
     schema = Schema(dataset_id=ID(stored=True),
                     abstract=TEXT(stored=True),
-                    description=TEXT(analyzer=StemmingAnalyzer(), stored=True))
+                    description=TEXT(analyzer=StemmingAnalyzer(), stored=True),
+                    title=TEXT(stored=True))
 
     create_in(whoosh_index, schema)
 
@@ -31,8 +32,8 @@ def search_doc(txt):
     ix = open_dir(whoosh_index)
 
     with ix.searcher() as searcher:
-        query = QueryParser("description", ix.schema).parse(txt)
-        results = searcher.search(query)
+        query = MultifieldParser(["description", "abstract", "title"], ix.schema).parse(txt)
+        results = searcher.search(query, limit=20)
         results = [dict(r) for r in results]
     return results
 
@@ -53,8 +54,11 @@ def get_three_like_this(id_):
     with ix.searcher() as searcher:
         query = QueryParser("dataset_id", ix.schema).parse(str(id_))
         results = searcher.search(query)
-        keys = results[0].more_like_this("description")[:3]
-        keywords = [dict(k) for k in keys]
+        try:
+            keys = results[0].more_like_this("description")[:3]
+            keywords = [dict(k) for k in keys]
+        except:
+            keywords = None
 
     return keywords
 

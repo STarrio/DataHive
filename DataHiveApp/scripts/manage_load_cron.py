@@ -33,7 +33,6 @@ def update_cron(minutes=None, hours=None, days=None):
     if not job:
         create_cron(minutes, hours, days)
     else:
-        print(minutes, hours, days)
         job.day.every(int(days))
         job.hour.every(int(hours))
         job.minute.every(int(minutes))

@@ -130,7 +130,13 @@
                                                     </div>
                                                     <div class="col-md-3 vertical-center">
                                                         <a class="btn btn-info"
-                                                           href="{% url 'DataHiveApp:download' file_url=file.get_file_download_url %}"
+                                                           href="
+                                                           {% if file.dataset.source.name == 'UCI' %}
+                                                            {% url 'DataHiveApp:download' file_url=file.get_file_download_url %}
+                                                           {% else %}
+                                                            {{file.get_file_download_url}}
+                                                           {% endif %}
+                                                           "
                                                            download>
                                                             <i class="glyphicon glyphicon-download-alt"></i>
                                                         </a>
@@ -154,27 +160,33 @@
                     <div class="panel panel-info">
                         <div class="panel-body">
                             <div class="row">
-                                {% for ds in object.get_recommended %}
-                                    <div class="col-md-12">
-                                        <div class="panel panel-info">
-                                            <div class="panel-body">
-                                                <div class="row">
-                                                    <div class="col-sm-1">
-                                                        <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
-                                                        width="25px"/>
-                                                     </div>
-                                                    <div class="col-sm-9">
+                                {% if object.get_recommended %}
+                                    {% for ds in object.get_recommended %}
+                                        <div class="col-md-12">
+                                            <div class="panel panel-info">
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-1">
+                                                            <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
+                                                            width="25px"/>
+                                                         </div>
+                                                        <div class="col-sm-9">
 
-                                                        <a href="{% url "DataHiveApp:dataset.detail" pk=ds.id %}" ><h4 style=" overflow:hidden; text-overflow:ellipsis;">{{ds.title}} <span class="badge">{{ds.get_n_files}} files </span></h4>
-                                                        </a>
+                                                            <a href="{% url "DataHiveApp:dataset.detail" pk=ds.id %}" ><h4 style=" overflow:hidden; text-overflow:ellipsis;">{{ds.title}} <span class="badge">{{ds.get_n_files}} files </span></h4>
+                                                            </a>
 
-                                                        <p>{{ds.get_abstract | default_if_none:"<i>No abstract</i>"}}</p>
+                                                            <p>{{ds.get_abstract | default_if_none:"<i>No abstract</i>"}}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                {% endfor %}
+                                    {% endfor %}
+                                {% else %}
+                                <div class="col-md-12">
+                                    No similar datasets found
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

@@ -24,8 +24,9 @@ def load_datasets(datasets, categories):
         # insert description at a Whoosh instance
         description = d['description'].replace("\"", " ") if d['description'] is not None else None
         abstract = d['abstract'].replace("\"", " ") if d['abstract'] is not None else None
+        title = d['title'].replace("\"", " ") if d['abstract'] is not None else None
 
-        whoosh_data.append({'abstract': abstract, 'description': description})
+        whoosh_data.append({'abstract': abstract, 'description': description, 'title': title})
 
         del d['description']
         del d['abstract']
@@ -88,8 +89,8 @@ if __name__ == '__main__':
     repo_name_dv = 'DATAVERSE'
     repo_dv = RepoMetadata.objects.get(name=repo_name_dv)
 
-    #load_data_uci()
-    for _ in range(1):
+    load_data_uci()
+    for _ in range(15):
         load_data_verse(repo_dv, 1)
 
 

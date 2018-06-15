@@ -43,7 +43,7 @@ class UCIScraper:
         # Retrieves data from dataset's files
         f = urllib.request.urlopen(self.base_url+path)
         bs = BeautifulSoup(f,'html.parser')
-        return bs.table.contents[7:-3]
+        return bs.table.contents[5:-3]
 
     def scrape_data(self):
 
@@ -62,7 +62,7 @@ class UCIScraper:
         entries = []
         files = []
         categories = list()
-        for i in range(15):#len(l_ds)//2):
+        for i in range(len(l_ds)//2):
             entry = {}
             ds_soup = l_ds[2*i]
             path = ds_soup.a['href']
@@ -109,7 +109,10 @@ class UCIScraper:
                 file_size = f[1]
 
                 file_name_separated = file_id_name.split(".")
-                file_type = self.extension_dict[file_name_separated[-1]] if len(file_name_separated)>1 else "Plain text"
+                try:
+                    file_type = self.extension_dict[file_name_separated[-1]] if len(file_name_separated)>1 else "Plain text"
+                except:
+                    file_type = "Unknown"
 
                 dataset_files.append({'id_in_source':file_id_name, 'name':file_id_name, 'size':file_size, 'file_type':file_type})
 
