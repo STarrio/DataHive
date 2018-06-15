@@ -46,7 +46,7 @@ class DataSetListView(ListView):
             if results:
                 queryset = DataSet.objects.filter(pk__in=[result['dataset_id'] for result in results])
         else:
-            queryset = DataSet.objects.all()
+            queryset = DataSet.objects.all().order_by('?')
 
         return queryset
 

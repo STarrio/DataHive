@@ -43,9 +43,3 @@ def get_cron_job():
     cron = CronTab(user=get_username())
     jobs = cron.find_comment('cron_load_data')
     return cron, next(jobs, None)
-
-
-if __name__ == '__main__':
-    # update_cron(**{'minutes': 4, 'hours': '7', 'days': 4})
-    # print(get_current_cron_config())
-    pass

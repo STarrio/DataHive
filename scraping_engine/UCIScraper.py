@@ -121,10 +121,3 @@ class UCIScraper:
             files.append(dataset_files)
 
         return entries, files, categories
-
-
-if __name__ == "__main__":
-    sc = DataverseScraper()
-    datasets, files = sc.scrape_data(range(1, 2))
-    print(datasets)
-    pass

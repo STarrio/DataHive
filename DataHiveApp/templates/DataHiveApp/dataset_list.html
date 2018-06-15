@@ -2,22 +2,33 @@
 
 {% block content %}
     {% load extra_filters %}
-    <h3>Dataset list</h3>
-    <hr/>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Dataset list</h3>
+        </div>
+        <div class="col-md-6">
+            <div class="pull-right vertical-center">
+                {{page_obj.paginator.count}} results
+            </div>
+        </div>
+        <div class="col-md-12">
+            <hr/>
+        </div>
+    </div>
     <div class="col-md-10 col-md-push-1">
 	{% for dataset in object_list %}
-                    <div class="panel panel-info">
-                        <div class="panel-body">
-                            <div class="col-xs-1">
-                            <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
-                                                                        width="25px" style="padding-top:20px"/>
-                            </div>
-                            <div class="col-xs-11">
-                            <h3> <a href="{{dataset.id}}">{{dataset.title}}</a> <span class="badge">{{dataset.get_n_files}} files </span></h3>
-                            <p>{{dataset.get_abstract | default_if_none:''}}</p>
-                        </div>
-                        </div>
-                    </div>
+        <div class="panel panel-info">
+            <div class="panel-body">
+                <div class="col-xs-1">
+                <img src="https://www.shareicon.net/download/2016/01/07/699454_education_512x512.png"
+                                                            width="25px" style="padding-top:20px"/>
+                </div>
+                <div class="col-xs-11">
+                <h3> <a href="{{dataset.id}}">{{dataset.title}}</a> <span class="badge">{{dataset.get_n_files}} files </span></h3>
+                <p>{{dataset.get_abstract | default_if_none:''}}</p>
+            </div>
+            </div>
+        </div>
 
 
     {% empty %}
@@ -26,42 +37,43 @@
     </div>
 
     <div class="clearfix"></div>
-
-    <ul class="pagination">
-    {% if is_paginated %}
-        {% if page_obj.number == 1 %}
-            <li class="disabled"><span>⇤</span></li>
-        {% else %}
-            <li><a href={{ request.get_full_path|link_name:1 }}>⇤</a></li>
-        {% endif %}
-        {% if page_obj.has_previous %}
-            <li><a href={{ request.get_full_path|link_name:page_obj.previous_page_number }}>&laquo;</a></li>
+    <div class="text-center">
+        <ul class="pagination">
+        {% if is_paginated %}
+            {% if page_obj.number == 1 %}
+                <li class="disabled"><span>⇤</span></li>
+            {% else %}
+                <li><a href={{ request.get_full_path|link_name:1 }}>⇤</a></li>
+            {% endif %}
+            {% if page_obj.has_previous %}
+                <li><a href={{ request.get_full_path|link_name:page_obj.previous_page_number }}>&laquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
+            {% for i in paginator|proper_paginate:page_obj.number %}
+                {% if page_obj.number == i %}
+                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                {% else %}
+                    <li><a href={{ request.get_full_path|link_name:i }}>{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li><a href={{ request.get_full_path|link_name:page_obj.next_page_number }}>&raquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+            {% if page_obj.number == paginator.num_pages %}
+                <li class="disabled"><span>⇥</span></li>
+            {% else %}
+                <li><a href={{ request.get_full_path|link_name:paginator.num_pages }}>⇥</a></li>
+            {% endif %}
         {% else %}
             <li class="disabled"><span>&laquo;</span></li>
-        {% endif %}
-        {% for i in paginator|proper_paginate:page_obj.number %}
-            {% if page_obj.number == i %}
-                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-            {% else %}
-                <li><a href={{ request.get_full_path|link_name:i }}>{{ i }}</a></li>
-            {% endif %}
-        {% endfor %}
-        {% if page_obj.has_next %}
-            <li><a href={{ request.get_full_path|link_name:page_obj.next_page_number }}>&raquo;</a></li>
-        {% else %}
+            <li class="active"><a>1</a></li>
             <li class="disabled"><span>&raquo;</span></li>
         {% endif %}
-        {% if page_obj.number == paginator.num_pages %}
-            <li class="disabled"><span>⇥</span></li>
-        {% else %}
-            <li><a href={{ request.get_full_path|link_name:paginator.num_pages }}>⇥</a></li>
-        {% endif %}
-    {% else %}
-        <li class="disabled"><span>&laquo;</span></li>
-        <li class="active"><a>1</a></li>
-        <li class="disabled"><span>&raquo;</span></li>
-    {% endif %}
-    </ul>
+        </ul>
+    </div>
 
 
 {% endblock %}

@@ -76,20 +76,26 @@ def load_data_verse(repo, num_pages):
 
 
 @transaction.atomic
-def load_data_uci():
+def load_data_uci(repo):
     """ Execute scraping from UCI Dataset Repository """
-    datasets, files, categories = UCIScraper.UCIScraper().scrape_data()
-    created_categories = load_categories(categories)
-    created_datasets = load_datasets(datasets, created_categories)
+    if repo.last_fetch_page != 1:
+        datasets, files, categories = UCIScraper.UCIScraper().scrape_data()
+        created_categories = load_categories(categories)
+        created_datasets = load_datasets(datasets, created_categories)
 
-    load_files(files,created_datasets)
+        load_files(files, created_datasets)
+        repo.last_fetch_page = 1
+        repo.save
 
 
 if __name__ == '__main__':
     repo_name_dv = 'DATAVERSE'
     repo_dv = RepoMetadata.objects.get(name=repo_name_dv)
 
-    load_data_uci()
+    repo_name_uci = 'UCI'
+    repo_uci = RepoMetadata.objects.get(name=repo_name_uci)
+
+    load_data_uci(repo_uci)
     for _ in range(15):
         load_data_verse(repo_dv, 1)
 

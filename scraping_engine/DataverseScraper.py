@@ -96,10 +96,3 @@ class DataverseScraper:
                 files.append(dataset_files)
 
         return entries, files, categories
-
-
-if __name__ == "__main__":
-    sc = DataverseScraper()
-    datasets, files = sc.scrape_data(range(1, 11))
-    #print(datasets)
-    pass
