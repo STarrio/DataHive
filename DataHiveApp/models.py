@@ -19,7 +19,7 @@ class DataSet(models.Model):
     url = models.URLField(unique=True)
     download_url = models.URLField(null=True)
     publication_date = models.DateTimeField(null=True)
-    keywords = ArrayField(models.CharField(max_length=150), null=True, blank=True)
+    keywords = ArrayField(models.CharField(max_length=300), null=True, blank=True)
     source = models.ForeignKey('RepoMetadata', related_name='datasets', on_delete=models.DO_NOTHING)
     categories = models.ManyToManyField('Category', blank=True)
 
@@ -29,7 +29,6 @@ class DataSet(models.Model):
         uci_file_download_url = ""
         kaggle_file_download_url = ""
 
-        # TODO: define kaggle/uci functions
         get_url = {
             'DATAVERSE': lambda files: dataverse_file_download_url.format(",".join([f.id_in_source for f in files]))
             ,
@@ -51,7 +50,7 @@ class DataSet(models.Model):
 
     def get_recommended(self):
         recommended = get_three_like_this(self.id)
-        return DataSet.objects.filter(pk__in=[r["dataset_id"] for r in recommended])
+        return DataSet.objects.filter(pk__in=[r["dataset_id"] for r in recommended]) if recommended else None
 
     def get_keywords(self):
         return get_keywords_id(self.id)
@@ -81,7 +80,6 @@ class File(models.Model):
         uci_file_download_url = "http://archive.ics.uci.edu/ml/"
         kaggle_file_download_url = ""
 
-        # TODO: define kaggle/uci functions
         get_url = {
             'DATAVERSE': lambda: dataverse_file_download_url.format(self.id_in_source)
             ,
@@ -101,6 +99,7 @@ class RepoMetadata(models.Model):
 
     def __str__(self):
         return self.name
+
 
 all_models = {
     "DataSet": DataSet,

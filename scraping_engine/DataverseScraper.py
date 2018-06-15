@@ -73,7 +73,7 @@ class DataverseScraper:
                 entry['abstract'] = None
 
                 keywords = metadata.find(attrs={"for": "metadata_keyword"})
-                entry['keywords'] = str_split_strip(',|\n', keywords.find_next_sibling().text) if keywords else None
+                entry['keywords'] = str_split_strip(',|\n', keywords.find_next_sibling().text) if keywords and len(keywords.find_next_sibling().text) < 300 else None
 
                 # Files
                 files_data = detail.find('div', attrs={"id": re.compile("dataFilesTab")}).find_all('td', class_='col-file-metadata')
